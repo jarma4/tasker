@@ -2,29 +2,29 @@ const fs = require('fs'),
 	logger = require('pino')({}, fs.createWriteStream('./json/log.json', {'flags': 'a'})),
    crontab = require('node-crontab'),
    puppeteer = require('puppeteer'),
-   exec = require('child_process').exec,
-   mongoose = require('mongoose');
+   exec = require('child_process').exec;
+   // mongoose = require('mongoose');
 
 require('dotenv').config()
 const telnyx = require('telnyx')(process.env.TELNYX);
-mongoose.connect('mongodb://baf:'+process.env.MONGO+'@127.0.0.1/baf', {useNewUrlParser: true, useUnifiedTopology: true});
+// mongoose.connect('mongodb://baf:'+process.env.MONGO+'@127.0.0.1/baf', {useNewUrlParser: true, useUnifiedTopology: true});
 
-const app = require('./http');
-
-let checkinStatus = {}, vpnFailCounter = 0;
+console.log('-- Starting Tasker ');
+const globals = require('./modules/globals');
+const app = require('./modules/http'); // startup express
 
 function checkVpn () {
    // pi crontab script checks status and logs in file
-   let vpnStatus = JSON.parse(fs.readFileSync('json/testvpn_status.json'));
-   if (!(vpnStatus.vpn && vpnStatus.network)) {
+   vpnStatus = JSON.parse(fs.readFileSync('json/testvpn_status.json'));
+   if (!(globals.vpnStatus.vpn && globals.vpnStatus.network)) {
       logger.error(new Date().toLocaleString(), ': VPN down, check on it');
-      if (++vpnFailCounter > 1) { //only send text every 30min
+      if (++globals.vpnFailCounter > 1) { //only send text every 30min
          telnyx.messages.create({
             'from': process.env.TEXTFROM, // Your Telnyx number
             'to': process.env.TEXTTO,
             'text': 'VPN down, check on it'
          }).then(function(response){
-            vpnFailCounter = 0;
+            globals.vpnFailCounter = 0;  // need to reset after 30min too
          });
       }
    }
@@ -53,7 +53,7 @@ async function checkin() {
    let points = await page.evaluate(() => document.querySelector('.mp').textContent);
    console.log(`- before points = ${points}`);
    logger.info(new Date().toLocaleString(), `: checkin pts=${points}`);
-   checkinStatus = {"date" : new Date(), "points" : points};
+   globals.checkinStatus = {"date" : new Date(), "points" : points};
 
    await page.click('.checkin-btn');
 
@@ -66,7 +66,6 @@ function sendDailyReport() {
    // TBD
 }
 
-console.log('-- Starting scheduler ');
 // Here jobs are scheduled
 const vpnCron = crontab.scheduleJob("*/15 * * * *", checkVpn);
 const checkinCron = crontab.scheduleJob("0 7 * * *", checkin);

@@ -1,0 +1,28 @@
+body {
+   background-color: lightgray;
+}
+.bad {
+   color: red;
+}
+
+.good {
+   color: green;
+}
+.date {
+   font-size: 90%;
+   font-style: italic;
+}
+.status {
+   font-size: 110%;
+   font-weight: bold;
+}
+.table {
+   display: table;
+}
+.tablerow {
+   display: table-row;
+}
+.tablecell {
+   display: table-cell;
+   padding: 10px;
+}

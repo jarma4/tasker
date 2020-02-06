@@ -4,9 +4,17 @@ html
       meta(charset='utf-8')
       meta(http-equiv='X-UA-Compatible', content='IE=edge')
       meta(name='viewport', content='width=device-width, initial-scale=1')
+      link(href='css/main.css', rel='stylesheet')
       title Tasker
    body
       h1 Tasker
-      h3#vpnStatus
-      h3#checkinPoints
+      .table
+         .tablerow
+            span.tablecell VPN Status
+            span.tablecell#vpnStatus.status
+            span.tablecell#vpnStatusDate.date
+         .tablerow
+            span.tablecell Banggood Points
+            span.tablecell#checkinPoints.status
+            span.tablecell#checkinPointsDate.date
       script(src='js/bundle.js')

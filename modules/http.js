@@ -27,11 +27,11 @@ router.get('/', (req,res) => {
 });
 
 router.get('/api/vpnstatus', (req,res) => {
-   // res.send({'type':'success', 'message': globals.vpnStatus.vpn && globals.vpnStatus.network});
-   res.json(globals.vpnStatus)
+   res.sendFile('./json/testvpn_status.json', {'root':__dirname+'/..'});
+   // res.json(globals.vpnStatus)
 });
 
 router.get('/api/checkinstatus', (req,res) => {
-   // res.send({'type':'success', 'message': globals.vpnStatus.network});
-   res.json(globals.checkinStatus);
+   res.sendFile('./json/checkin_status.json', {'root':__dirname+'/..'});
+   // res.json(globals.checkinStatus);
 });

@@ -32,7 +32,7 @@ function getStats() {
          message = 'no data';
          retData.date = 'now';
       } else {
-         if (retData.vpn && retData.network){
+         if (retData.vpn){
             message = 'UP';
             target.classList.add('good');
          } else {

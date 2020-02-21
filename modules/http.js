@@ -27,11 +27,11 @@ router.get('/', (req,res) => {
 });
 
 router.get('/api/vpnstatus', (req,res) => {
-   res.sendFile('./json/testvpn_status.json', {'root':__dirname+'/..'});
+   res.sendFile('./results/testvpn_status.json', {'root':__dirname+'/..'});
    // res.json(globals.vpnStatus)
 });
 
 router.get('/api/checkinstatus', (req,res) => {
-   res.sendFile('./json/checkin_status.json', {'root':__dirname+'/..'});
+   res.sendFile('./results/checkin_status.json', {'root':__dirname+'/..'});
    // res.json(globals.checkinStatus);
 });

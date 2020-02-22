@@ -11,17 +11,17 @@ html
 		.wrapper
 			.card
 				.card_title VPN Status
-				.wrapper
+				.card_content
 					#vpnStatus.status
 					#vpnStatusDate
 			.card
 				.card_title Banggood Points
-				.wrapper
+				.card_content
 					#checkinPoints.status
 					#checkinPointsDate
 			.card
-				.card_title Device Snapshot
-				.wrapper
+				.card_title Network Snapshot
+				.card_content
 					a(href='images/latest.png') Latest
 					#snapshotDate
 					button(onclick='triggerSnapshot()') Take Snapshot

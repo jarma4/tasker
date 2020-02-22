@@ -1,22 +1,44 @@
+:root {
+   --cols: 1;
+}
+@media screen and (min-width: 480px) {
+   :root {
+      --cols: 2;
+   }
+}
+@media screen and (min-width: 768px) {
+   :root {
+      --cols: 3;
+   }
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
 .wrapper {
    display: grid;
-   grid-template-columns: repeat(1, 1fr);
+   grid-template-columns: repeat(var(--cols), 1fr);
    grid-gap: 1em;
    /* grid-auto-rows: minmax(100px, auto); */
-   padding: 10px;
 }
 .card {
-   background-color: #ccc;
+	background-color: #ccc;
    text-align: center;
 }
 .card_title {
+   background-color: #ddd;
    font-weight: bold;
    font-size: large;
    font-style: italic;
    padding: 10px;
    text-align: center;
 }
-
+.card_content {
+	padding: 10px;
+}
+.card_content > * {
+	padding: 5px;
+}
 .right {
    text-align: right;
 }

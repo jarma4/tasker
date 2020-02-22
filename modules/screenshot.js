@@ -22,7 +22,7 @@ module.exports = async function () {
    await page.goto(url, {waitUntil: 'networkidle2'});
 
    console.log('- take screenshot ...');
-   const filename = `./results/${today.getFullYear()}${('0'+(today.getMonth()+1)).slice(-2)}${today.getDate()}_devices.png`;
+   const filename = `./results/${today.getFullYear()}${('0'+(today.getMonth()+1)).slice(-2)}${('0'+today.getDate()).slice(-2)}_${('0'+today.getHours()).slice(-2)}${('0'+today.getMinutes()).slice(-2)}_snapshot.png`;
    await page.screenshot({path: filename});
    globals.fs.unlink('./public/images/latest.png',  err => {
       if (err) throw err;

@@ -2,7 +2,7 @@ const express = require('express'),
    bodyParser = require('body-parser'),
    compression = require('compression'),
    fs = require('fs'),
-   globals = require('./globals');
+   getDeviceScreenshot = require('../modules/screenshot');
 
 const app = express();
 const router = express.Router();
@@ -27,14 +27,13 @@ router.get('/', (req,res) => {
 	res.render('home', {pagename:'home'});
 });
 
-router.get('/api/vpnstatus', (req,res) => {
-   res.sendFile('./results/testvpn_status.json', {'root':__dirname+'/..'});
-   // res.json(globals.vpnStatus)
-});
-
-router.get('/api/checkinstatus', (req,res) => {
-   res.sendFile('./results/checkin_status.json', {'root':__dirname+'/..'});
-   // res.json(globals.checkinStatus);
+router.post('/api/action', (req,res) => {
+   switch (req.body.action) {
+		case 'snapshot': {
+         getDeviceScreenshot();
+         res.send({'message':'success'});
+      }
+   }
 });
 
 router.get('/api/getinfo', (req,res) => {
@@ -42,6 +41,5 @@ router.get('/api/getinfo', (req,res) => {
       vpnStatus : JSON.parse(fs.readFileSync('./results/testvpn_status.json')),
       checkinStatus : JSON.parse(fs.readFileSync('./results/checkin_status.json')),
       snapshotDate : fs.statSync('./public/images/latest.png').mtime };
-      console.log(data);
    res.send(data);
 });

@@ -1,5 +1,5 @@
 window.onload = () => {
-   getStats();
+   getInfo();
 };
 
 // for FETCH calls
@@ -21,18 +21,18 @@ let postOptions = {
 //    'period': period
 // });
 
-function getStats() {
+function getInfo() {
    let message, target;
 
-   fetch('/api/vpnstatus', getOptions)
+   fetch('/api/getinfo', getOptions)
    .then((res)=>res.json())
    .then(retData => {
       target = document.getElementById("vpnStatus");
-      if (retData.date == 'none') {
+      if (retData.vpnStatus.date == 'none') {
          message = 'no data';
-         retData.date = 'now';
+         retData.vpnStatus.date = 'now';
       } else {
-         if (retData.vpn){
+         if (retData.vpnStatus.vpn){
             message = 'UP';
             target.classList.add('good');
          } else {
@@ -41,19 +41,16 @@ function getStats() {
          }
       }
       target.innerText = message;
-      document.getElementById("vpnStatusDate").innerText = retData.date;
-   });
-   fetch('/api/checkinstatus', getOptions)
-   .then((res)=>res.json())
-   .then(retData => {
+      document.getElementById("vpnStatusDate").innerText = new Date(retData.vpnStatus.date).toLocaleString();
       target = document.getElementById("checkinPoints");
-      if (retData.date == 'none') {
+      if (retData.checkinStatus.date == 'none') {
          message = 'no data';
-         retData.date = 'now';
+         retData.checkinStatus.date = 'now';
       } else {
-         message = retData.points;
+         message = retData.checkinStatus.points;
       }
       target.innerText = message;
-      document.getElementById("checkinPointsDate").innerText = retData.date;
+		document.getElementById("checkinPointsDate").innerText = retData.checkinStatus.date;
+		document.getElementById("snapshotDate").innerText = new Date(retData.snapshotDate).toLocaleString();
    });
 }

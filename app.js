@@ -38,12 +38,13 @@ async function getDeviceScreenshot() {
    console.log('- take screenshot ...');
    const filename = `./results/${today.getFullYear()}${('0'+(today.getMonth()+1)).slice(-2)}${today.getDate()}_devices.png`;
    await page.screenshot({path: filename});
-   fs.symlink('../.'+filename, './public/images/latest.png', 'file', err => {
-      if (err) {
-        throw err;
-      }
-      console.log('- symlink created');
-    });
+   fs.unlink('./public/images/latest.png',  err => {
+      if (err) throw err;
+      fs.symlink('../.'+filename, './public/images/latest.png', 'file', err => {
+         if (err) throw err;
+         console.log('- symlink created');
+      });
+   });
    console.log('- done ');
    await browser.close();
 	return;

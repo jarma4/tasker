@@ -1,4 +1,5 @@
-const express = require('express'),
+const https = require('https'),
+   express = require('express'),
    bodyParser = require('body-parser'),
    compression = require('compression'),
    fs = require('fs'),
@@ -18,8 +19,13 @@ app.use(express.static('public'));
 // app.use('/js', express.static(__dirname + '../public/js'));
 app.use('/', router);
 
-app.listen(8082, function(){
-   console.log('redirecting on port 8082');
+const options = {
+   cert: fs.readFileSync('./sslcert/fullchain.pem'),
+   key: fs.readFileSync('./sslcert/privkey.pem')
+};
+
+https.createServer(options, app).listen(8082, function(){
+   console.log('https on port 8082');
 });
 
 

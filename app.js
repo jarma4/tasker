@@ -16,7 +16,7 @@ const getDeviceScreenshot = require('./modules/screenshot');
 // Here jobs are scheduled
 const vpnCron = crontab.scheduleJob("*/10 7-23 * * *", checkVpn);
 const checkinCron = crontab.scheduleJob("0 14 * * *", checkin);
-const devicesCron = crontab.scheduleJob("1 0 * * *", getDeviceScreenshot);
+const devicesCron = crontab.scheduleJob("*/15 0 * * *", getDeviceScreenshot);
 
 
 

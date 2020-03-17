@@ -19,7 +19,7 @@ module.exports = async function () {
 
    console.log('- goto devices page ...');
    url = "http://192.168.1.1/#/html/status/status_devicetable.html";
-   await page.goto(url, {waitUntil: 'networkidle2'});
+   await page.goto(url, {waitUntil: 'networkidle0'});
 
    console.log('- take screenshot ...');
    const filename = `./results/${today.getFullYear()}${('0'+(today.getMonth()+1)).slice(-2)}${('0'+today.getDate()).slice(-2)}_${('0'+today.getHours()).slice(-2)}${('0'+today.getMinutes()).slice(-2)}_snapshot.png`;

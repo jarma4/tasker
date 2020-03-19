@@ -3,7 +3,9 @@ const https = require('https'),
    bodyParser = require('body-parser'),
    compression = require('compression'),
    fs = require('fs'),
-   getDeviceScreenshot = require('../modules/screenshot');
+	getDeviceScreenshot = require('../modules/screenshot');
+	
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const app = express();
 const router = express.Router();
@@ -38,7 +40,12 @@ router.post('/api/action', (req,res) => {
 		case 'snapshot': {
          getDeviceScreenshot();
          res.send({'message':'success'});
-      }
+		}
+		case 'getquote': {
+			getQuote(req.body.stock).then((result)=>{
+				res.send({'message': result});
+			});
+		}
    }
 });
 
@@ -49,3 +56,21 @@ router.get('/api/getinfo', (req,res) => {
       snapshotDate : fs.statSync('./public/images/latest.png').mtime };
    res.send(data);
 });
+
+async function getQuote(stock){
+   // spreadsheet key is the long id in the sheets URL
+   const doc = new GoogleSpreadsheet('1JXQ_xrPRWGNQDTn3b1CEw6c5ReGWhrbCYAzMO8PCTls');
+   
+   await doc.useServiceAccountAuth(require('./credentials.json'));
+   await doc.loadInfo(); // loads document properties and worksheets
+     
+   const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+	await sheet.loadCells('A1:B4')
+	sheet.getCell(0,1).value = stock;
+	await sheet.saveUpdatedCells();
+	return new Promise((resolve, reject) => {
+		setTimeout(() => {
+			resolve (sheet.getCell(3,1).value);
+		}, 5000);
+	});
+}

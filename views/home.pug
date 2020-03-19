@@ -28,5 +28,8 @@ html
 			.card
 				.card_title Stock Watch
 				.card_content
-					h3 Current Price
+					label(for='stock') Stock:&nbsp
+					input#stock
+					p Current Price: #[span#stockPrice]
+					button(onclick='getQuote()') Get Quote
 		script(src='js/bundle.js')

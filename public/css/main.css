@@ -42,8 +42,18 @@ body {
 .card_content > * {
 	padding: 5px;
 }
+.col2 {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+	grid-gap: 1em;
+	align-items: center;
+   /* grid-auto-rows: minmax(100px, auto); */
+}
 .right {
    text-align: right;
+}
+.left {
+   text-align: left;
 }
 .bad {
    color: red;
@@ -65,4 +75,11 @@ h1 {
 }
 #spinner {
 	font-size: 2em;
+}
+.btn {
+	/* font-size: 105%; */
+	padding: 10px 30px 10px 30px;
+	background-color: #E8E695;
+	border-radius: 5%;
+	border: none;
 }

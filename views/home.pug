@@ -24,12 +24,18 @@ html
 				.card_content
 					a(href='images/latest.png') Latest
 					#snapshotDate
-					button(onclick='triggerSnapshot()') Take Snapshot
+					button.btn(onclick='triggerSnapshot()') Take Snapshot
 			.card
 				.card_title Stock Watch
 				.card_content
 					label(for='stock') Stock:&nbsp
-					input#stock
-					p Current Price: #[span#stockPrice]
-					button(onclick='getQuote()') Get Quote
+					input#stock(size='4')
+					.col2
+						.right Watch Price: 
+						span#watchPrice.left
+						.right Current Price: 
+						span#currentPrice.left
+						.right Change: 
+						span#change.left
+					button.btn(onclick='getQuote()') Get Quote
 		script(src='js/bundle.js')

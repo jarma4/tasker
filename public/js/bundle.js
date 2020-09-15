@@ -22,6 +22,7 @@ let postOptions = {
       fetch('/api/getinfo', getOptions)
       .then(res => res.json())
       .then(retData => {
+			// VPN
          target = document.getElementById("vpnStatus");
          if (retData.vpnStatus.date == 'none') {
             message = 'no data';
@@ -36,7 +37,8 @@ let postOptions = {
             }
          }
          target.innerText = message;
-         document.getElementById("vpnStatusDate").innerText = new Date(retData.vpnStatus.date).toLocaleString();
+			document.getElementById("vpnStatusDate").innerText = new Date(retData.vpnStatus.date).toLocaleString();
+			// CHECKIN
          target = document.getElementById("checkinPoints");
          if (retData.checkinStatus.date == 'none') {
             message = 'no data';
@@ -45,8 +47,12 @@ let postOptions = {
             message = retData.checkinStatus.points;
          }
          target.innerText = message;
-         document.getElementById("checkinPointsDate").innerText = retData.checkinStatus.date;
-         document.getElementById("snapshotDate").innerText = new Date(retData.snapshotDate).toLocaleString();
+			document.getElementById("checkinPointsDate").innerText = retData.checkinStatus.date;
+			// SNAPSHOT
+			document.getElementById("snapshotDate").innerText = new Date(retData.snapshotDate).toLocaleString();
+			// STOCK
+			document.getElementById("stock").value = retData.stockStatus.stock;
+			document.getElementById("watchPrice").innerText = retData.stockStatus.watch;
       });
    }
    
@@ -71,7 +77,7 @@ function getQuote() {
 	function spin() {
 		spinner = setInterval(() => {
 			var char = chars.shift();
-			document.getElementById('stockPrice').innerText = char;
+			document.getElementById('currentPrice').innerText = char;
 			chars.push(char);
 	
 		}, 150);
@@ -87,7 +93,8 @@ function getQuote() {
    .then(retData => {
 		if (retData.message) {
 			clearInterval(spinner);
-			document.getElementById("stockPrice").innerText = retData.message;
+			document.getElementById("currentPrice").innerText = retData.message;
+			document.getElementById("change").innerText = ((Number(retData.message) - Number(document.getElementById("watchPrice").innerText))/Number(document.getElementById("watchPrice").innerText)*100).toPrecision(3)+'%';
 		}
    });
 }

@@ -53,7 +53,9 @@ router.get('/api/getinfo', (req,res) => {
    const data = {
       vpnStatus : JSON.parse(fs.readFileSync('./results/testvpn_status.json')),
       checkinStatus : JSON.parse(fs.readFileSync('./results/checkin_status.json')),
-      snapshotDate : fs.statSync('./public/images/latest.png').mtime };
+		snapshotDate : fs.statSync('./public/images/latest.png').mtime,
+      stockStatus : JSON.parse(fs.readFileSync('./results/stock.json')),
+	 };
    res.send(data);
 });
 

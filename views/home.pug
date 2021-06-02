@@ -17,9 +17,10 @@ html
 					| Voice Notes
 				.card_content.color-secondary
 					button#recordBtn.btn(value=0) Start Recording
-					audio#player(controls)
-					table#recordings
-						th(colspan=4) Recordings
+					audio#player
+					table#recordings(width='100%')
+						tr
+							th(colspan=4) Recordings
 			.card
 				.card_title 
 					span.material-icons vpn_lock

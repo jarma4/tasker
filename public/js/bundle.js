@@ -22,7 +22,6 @@ async function initAudio (){
 				recorder.stop();
 				recordBtn.textContent = 'Start Recording';
 				recordBtn.classList.remove('recording');
-				// saveRecording('tasker'+(++numRecordings));
 			}
 		});
 		recorder.ondataavailable = event => {
@@ -34,7 +33,7 @@ async function initAudio (){
 			const reader = new FileReader();
 			reader.onload = () => {
 				localStorage.setItem('tasker'+numRecordings, reader.result);
-				displayStorage();
+				displayStorage(); //when done
 			};
 			reader.readAsDataURL(blob);
 		};
@@ -47,19 +46,31 @@ function displayStorage() {
 	const storedKeys = Object.keys(localStorage);
 	let newRow, insertLocation;
 
-	recordings.innerHTML = '<table class="recordings"><tbody><tr><th colspan=4>Recordings</th></tr></tbody></table>';
-	for (let key in storedKeys){
-		newRow = '<tr><td><button class="control play" data-key="'+storedKeys[key]+'"><span class="material-icons">play_arrow</span></button></td><td width="100%">'+storedKeys[key]+'</td><td><button class="control edit" data-key="'+storedKeys[key]+'"><span class="material-icons">edit</span></a></td><td><button class="control delete" data-key="'+storedKeys[key]+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
+	// blank out table
+	recordings.innerHTML = '<table width="100%" class="recordings"><tbody><tr><th colspan=4>Recordings</th></tr></tbody></table>';
+	// fille table with items in localstorage
+	if (storedKeys.length) {
+		for (let key in storedKeys){
+			if (storedKeys[key].slice(0,6) == 'tasker') {
+				newRow = '<tr><td><button class="control play" data-key="'+storedKeys[key]+'"><span class="material-icons">play_arrow</span></button></td><td width="100%">'+storedKeys[key]+'</td><td><button class="control edit" data-key="'+storedKeys[key]+'"><span class="material-icons">edit</span></a></td><td><button class="control delete" data-key="'+storedKeys[key]+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
+				insertLocation=recordings.innerHTML.indexOf('</tbody>');
+				recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
+				numRecordings++;
+			}
+		}
+	} else {
+		newRow = '<tr><td colspan=4>None</td></tr>';
 		insertLocation=recordings.innerHTML.indexOf('</tbody>');
 		recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
-		numRecordings++;
 	}
+
 	// add events to control buttons
 	let buttons = document.getElementsByClassName('control');
 	for (let i=0; i < buttons.length; i++){
 		buttons[i].addEventListener('click', (event) => {
 			if (event.currentTarget.classList.contains('play')) {
-				document.getElementById('player').src = localStorage.getItem(event.currentTarget.getAttribute('data-key'));	
+				document.getElementById('player').src = localStorage.getItem(event.currentTarget.getAttribute('data-key'));
+				document.getElementById('player').play();
 			} else {
 				localStorage.removeItem(event.currentTarget.getAttribute('data-key'));
 				displayStorage();

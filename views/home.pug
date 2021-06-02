@@ -5,29 +5,46 @@ html
 		meta(http-equiv='X-UA-Compatible', content='IE=edge')
 		meta(name='viewport', content='width=device-width, initial-scale=1')
 		link(href='css/main.css', rel='stylesheet')
+		link(href='https://fonts.googleapis.com/css?family=Roboto&display=swap', rel='stylesheet')
+		link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
 		title Tasker
 	body
 		h1 Tasker
 		.wrapper
 			.card
-				.card_title VPN Status
-				.card_content
+				.card_title 
+					span.material-icons mic_none
+					| Voice Notes
+				.card_content.color-secondary
+					button#recordBtn.btn(value=0) Start Recording
+					audio#player(controls)
+					table#recordings
+						th(colspan=4) Recordings
+			.card
+				.card_title 
+					span.material-icons vpn_lock
+					| VPN Status
+				.card_content.color-primary
 					#vpnStatus.status
 					#vpnStatusDate
-			.card
+			.card.nodisplay
 				.card_title Banggood Points
-				.card_content
+				.card_content.color-primary
 					#checkinPoints.status
 					#checkinPointsDate
 			.card
-				.card_title Network Snapshot
-				.card_content
+				.card_title 
+					span.material-icons network_check
+					| Network Snapshot
+				.card_content.color-primary
 					a(href='images/latest.png') Latest
 					#snapshotDate
 					button.btn(onclick='triggerSnapshot()') Take Snapshot
 			.card
-				.card_title Stock Watch
-				.card_content
+				.card_title 
+					span.material-icons account_balance
+					| Stock Watch
+				.card_content.color-primary
 					label(for='stock') Stock:&nbsp
 					input#stock(size='4')
 					.col2

@@ -3,8 +3,8 @@ const globals = require('./globals');
 module.exports = async function () {
    console.log('* ', new Date().toLocaleString());
    console.log('- loading browser ...');
-	// const browser = await puppeteer.launch({headless: false});
-	const browser = await globals.puppeteer.launch();
+   //const browser = await globals.puppeteer.launch({headless: false});
+   const browser = await globals.puppeteer.launch();
    const page = await browser.newPage();
    await page.setViewport({ width: 1280, height: 1024});
 
@@ -20,7 +20,7 @@ module.exports = async function () {
    url = "https://www.banggood.com/pointsmall.html"
 	await page.goto(url);
    
-   let points = await page.evaluate(() => document.querySelector('.mp').textContent);
+	let points = await page.evaluate(() => document.querySelector('.vipclub-points span').textContent);
    console.log(`- before points = ${points}`);
    globals.logger.info(new Date().toLocaleString(), `: checkin pts=${points}`);
    let success = globals.fs.writeFileSync('results/checkin_status.json',JSON.stringify({"date" : new Date().toLocaleString(), "points" : points}))

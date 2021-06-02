@@ -15,7 +15,11 @@
 body {
    font-family: Arial, Helvetica, sans-serif;
    background-color: #534FA6;
+	text-decoration: none;
 }
+/* a {
+	text-decoration: none;
+} */
 .wrapper {
    display: grid;
    grid-template-columns: repeat(var(--cols), 1fr);
@@ -23,7 +27,6 @@ body {
    /* grid-auto-rows: minmax(100px, auto); */
 }
 .card {
-	background-color: #ccc;
 	text-align: center;
 	border-radius: 5px;
 }
@@ -33,8 +36,11 @@ body {
    font-size: large;
    font-style: italic;
    padding: 10px;
-   text-align: center;
+   text-align: left;
 	border-radius: 5px 5px 0px 0px;
+}
+.card_title span{
+	margin: 0px 5px 0px 0px;
 }
 .card_content {
 	padding: 10px;
@@ -77,9 +83,39 @@ h1 {
 	font-size: 2em;
 }
 .btn {
-	/* font-size: 105%; */
+	font-size: 105%;
+	font-weight: bold;
 	padding: 10px 30px 10px 30px;
 	background-color: #E8E695;
 	border-radius: 5%;
 	border: none;
+}
+.control {
+	border-radius: 40%;
+	border-style: none;
+}
+.list {
+	list-style: none;
+	font-size: 105%;
+	/* font-weight: bold; */
+	padding:0px;
+	
+}
+.list li {
+	border-left: solid 1px black;
+	border-right: solid 1px black;
+	border-bottom: solid 1px black;
+}
+.recordingddd {
+	background-color: #D94F18;
+	color: white;
+}
+.nodisplay{
+	display: none;
+}
+.color-primary {
+	background-color: #ccc;
+}
+.color-secondary {
+	background-color: #aaa;
 }

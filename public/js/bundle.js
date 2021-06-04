@@ -1,11 +1,28 @@
-let numRecordings=0;
+let db=null, numRecordings=0;
 
 window.onload = () => {
 	getInfo();
 	initAudio();
 };
 
+function initIndexDb(){
+	return new Promise((resolve, reject) => {
+		let request = window.indexedDB.open('tasker', 1);
+		request.onerror = event => {
+			console.log('indexDB open error');
+		};
+		request.onsuccess = event => {
+			db = event.target.result;
+			resolve();
+		};
+		request.onupgradeneeded = event => {
+			event.target.result.createObjectStore('recordings', {keyPath: 'id', autoIncrement: true});
+		};
+	});
+}
+
 async function initAudio (){
+	// setup recorder
 	navigator.mediaDevices.getUserMedia({audio:true,video:false})
 	.then(audioObj => {
 		const recordBtn = document.getElementById('recordBtn');
@@ -14,13 +31,13 @@ async function initAudio (){
 		let chunks = [];
 
 		recordBtn.addEventListener('click', event => {
-			if (recordBtn.textContent == 'Start Recording') {
+			if (recordBtn.textContent == 'Record') {
 				recorder.start();
-				recordBtn.textContent = 'Stop Recording';
+				recordBtn.textContent = 'Stop';
 				recordBtn.classList.add('recording');
 			} else {
 				recorder.stop();
-				recordBtn.textContent = 'Start Recording';
+				recordBtn.textContent = 'Record';
 				recordBtn.classList.remove('recording');
 			}
 		});
@@ -30,53 +47,91 @@ async function initAudio (){
 		recorder.onstop = event=>{
 			let blob = new Blob(chunks, { 'type' : 'audio/ogg;' });
 			chunks = [];
-			const reader = new FileReader();
-			reader.onload = () => {
-				localStorage.setItem('tasker'+numRecordings, reader.result);
-				displayStorage(); //when done
-			};
-			reader.readAsDataURL(blob);
+			// indexDb version
+			let request = db.transaction('recordings', 'readwrite')
+				.objectStore('recordings')
+				.add({date: new Date(), comment: 'new note', blob: blob})
+				.onerror = () => console.log('error adding item to store');
+			displayStorage(); //when done
+			// const reader = new FileReader();
+			// reader.onload = () => {
+			// 	// localStorage version
+			// 	window.localStorage.setItem('tasker'+numRecordings, reader.result);
+			// };
+			// reader.readAsDataURL(blob);
 		};
 	});
+	await	initIndexDb();
 	displayStorage();
 }
 
 function displayStorage() {
 	const recordings = document.getElementById('recordings');
-	const storedKeys = Object.keys(localStorage);
+	const storedKeys = Object.keys(window.localStorage);
 	let newRow, insertLocation;
 
 	// blank out table
 	recordings.innerHTML = '<table width="100%" class="recordings"><tbody><tr><th colspan=4>Recordings</th></tr></tbody></table>';
-	// fille table with items in localstorage
-	if (storedKeys.length) {
-		for (let key in storedKeys){
-			if (storedKeys[key].slice(0,6) == 'tasker') {
-				newRow = '<tr><td><button class="control play" data-key="'+storedKeys[key]+'"><span class="material-icons">play_arrow</span></button></td><td width="100%">'+storedKeys[key]+'</td><td><button class="control edit" data-key="'+storedKeys[key]+'"><span class="material-icons">edit</span></a></td><td><button class="control delete" data-key="'+storedKeys[key]+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
-				insertLocation=recordings.innerHTML.indexOf('</tbody>');
-				recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
-				numRecordings++;
+	// indexdb
+	let recs=[];
+	let request = db.transaction('recordings').objectStore('recordings').openCursor().onsuccess=event=>{
+		let cursor=event.target.result;
+		if(cursor){
+			recs.push(cursor.value);
+			newRow = '<tr><td><button class="control play" data-id="'+cursor.value.id+'"><span class="material-icons">play_arrow</span></button></td><td width="100%">'+cursor.value.comment+'</td><td><button class="control edit" data-id="'+cursor.value.id+'"><span class="material-icons">edit</span></a></td><td><button class="control delete" data-id="'+cursor.value.id+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
+			insertLocation=recordings.innerHTML.indexOf('</tbody>');
+			recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
+			numRecordings++; //look for others, incrementing somewhere
+			cursor.continue();
+		} else { // no more
+			let buttons = document.getElementsByClassName('control');
+			for (let i=0; i < buttons.length; i++){
+				buttons[i].addEventListener('click', (event) => {
+					if (event.currentTarget.classList.contains('play')) {
+						let transaction = db.transaction('recordings');
+						let store = transaction.objectStore('recordings');
+						let request = store.get(Number(event.currentTarget.getAttribute('data-id')));
+							// .onerror = (event) => {
+							// 	console.log('error getting item from store');
+							// }
+						request.onsuccess = (event) => {
+							document.getElementById('player').src = URL.createObjectURL(request.result.blob);
+							document.getElementById('player').play();
+						};
+					} else {
+						let request = db.transaction('recordings', 'readwrite')
+							.objectStore('recordings')
+							.delete(Number(event.currentTarget.getAttribute('data-id')))
+							.onerror = () => console.log('error deleting item from store');
+						// localstorage
+						// window.localStorage.removeItem(event.currentTarget.getAttribute('data-key'));
+						numRecordings--;
+						displayStorage();
+					}
+				});
 			}
+		
 		}
-	} else {
-		newRow = '<tr><td colspan=4>None</td></tr>';
-		insertLocation=recordings.innerHTML.indexOf('</tbody>');
-		recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
-	}
+	};
+
+	// fille table with items in window.localStorage
+	// if (storedKeys.length) {
+	// 	numRecordings = 0;
+	// 	for (let key in storedKeys){
+	// 		if (storedKeys[key].slice(0,6) == 'tasker') {
+	// 			newRow = '<tr><td><button class="control play" data-key="'+storedKeys[key]+'"><span class="material-icons">play_arrow</span></button></td><td width="100%">'+storedKeys[key]+'</td><td><button class="control edit" data-key="'+storedKeys[key]+'"><span class="material-icons">edit</span></a></td><td><button class="control delete" data-key="'+storedKeys[key]+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
+	// 			insertLocation=recordings.innerHTML.indexOf('</tbody>');
+	// 			recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
+	// 			numRecordings++; //look for others, incrementing somewhere
+	// 		}
+	// 	}
+	// } else {
+	// 	newRow = '<tr><td colspan=4>None</td></tr>';
+	// 	insertLocation=recordings.innerHTML.indexOf('</tbody>');
+	// 	recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
+	// }
 
 	// add events to control buttons
-	let buttons = document.getElementsByClassName('control');
-	for (let i=0; i < buttons.length; i++){
-		buttons[i].addEventListener('click', (event) => {
-			if (event.currentTarget.classList.contains('play')) {
-				document.getElementById('player').src = localStorage.getItem(event.currentTarget.getAttribute('data-key'));
-				document.getElementById('player').play();
-			} else {
-				localStorage.removeItem(event.currentTarget.getAttribute('data-key'));
-				displayStorage();
-			}
-		});
-	}
 }
 
 // for FETCH calls

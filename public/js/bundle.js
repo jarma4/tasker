@@ -5,11 +5,11 @@ window.onload = () => {
 	initAudio();
 };
 
-function initIndexDb(){
+function initIndexedDb(){
 	return new Promise((resolve, reject) => {
 		let request = window.indexedDB.open('tasker', 1);
 		request.onerror = event => {
-			console.log('indexDB open error');
+			console.log('indexedDB open error');
 		};
 		request.onsuccess = event => {
 			db = event.target.result;
@@ -47,91 +47,103 @@ async function initAudio (){
 		recorder.onstop = event=>{
 			let blob = new Blob(chunks, { 'type' : 'audio/ogg;' });
 			chunks = [];
-			// indexDb version
 			let request = db.transaction('recordings', 'readwrite')
 				.objectStore('recordings')
 				.add({date: new Date(), comment: 'new note', blob: blob})
 				.onerror = () => console.log('error adding item to store');
 			displayStorage(); //when done
-			// const reader = new FileReader();
-			// reader.onload = () => {
-			// 	// localStorage version
-			// 	window.localStorage.setItem('tasker'+numRecordings, reader.result);
-			// };
-			// reader.readAsDataURL(blob);
 		};
 	});
-	await	initIndexDb();
+	await	initIndexedDb();
 	displayStorage();
 }
 
-function displayStorage() {
+function dbAct(actObj){
+	return new Promise((resolve, reject) => {
+		let transaction = db.transaction('recordings', 'readwrite');
+		let store = transaction.objectStore('recordings');
+		let request;
+		switch (actObj.type) {
+			case 'get':
+				request = store.get(actObj.id);
+				request.onsuccess = () => {
+					resolve(request.result);
+				}
+				break;
+			case 'delete':
+				request = store.delete(actObj.id);
+				request.onsuccess = () => {
+					resolve();
+				};
+				break;
+			case 'update':
+				request = store.get(actObj.id);
+				request.onsuccess = () => {
+					request.result.comment = actObj.comment;
+					store.put(request.result);
+					resolve();
+				};
+				break;
+			case 'getAll':
+				let results = [];
+				request = store.openCursor();
+				request.onsuccess = (event) => {
+					if (event.target.result) {
+						results.push(event.target.result.value);
+						event.target.result.continue();
+					} else {
+						resolve(results);
+					}
+				};
+				break;
+			}
+		request.onerror = (event) => {
+			console.log('DB error'+event.err);
+			reject();
+		};
+	});
+}
+
+async function displayStorage() {
 	const recordings = document.getElementById('recordings');
 	const storedKeys = Object.keys(window.localStorage);
 	let newRow, insertLocation;
 
 	// blank out table
 	recordings.innerHTML = '<table width="100%" class="recordings"><tbody><tr><th colspan=4>Recordings</th></tr></tbody></table>';
-	// indexdb
-	let recs=[];
-	let request = db.transaction('recordings').objectStore('recordings').openCursor().onsuccess=event=>{
-		let cursor=event.target.result;
-		if(cursor){
-			recs.push(cursor.value);
-			newRow = '<tr><td><button class="control play" data-id="'+cursor.value.id+'"><span class="material-icons">play_arrow</span></button></td><td width="100%">'+cursor.value.comment+'</td><td><button class="control edit" data-id="'+cursor.value.id+'"><span class="material-icons">edit</span></a></td><td><button class="control delete" data-id="'+cursor.value.id+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
+	dbAct({type: 'getAll'}).then(results => {
+		// go through records and add table rows
+		results.forEach(record => {
+			let dateArr = record.date.toString().split(' ');
+			newRow = '<tr><td><button class="control play" data-id="'+record.id+'"><span class="material-icons">play_arrow</span></button></td><td width=""><input class="comment" data-id="'+record.id+'" value="'+record.comment+'"></input></td><td>'+dateArr[1]+' '+dateArr[2]+' '+dateArr[4]+'</td><td><button class="control delete" data-id="'+record.id+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
 			insertLocation=recordings.innerHTML.indexOf('</tbody>');
 			recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
-			numRecordings++; //look for others, incrementing somewhere
-			cursor.continue();
-		} else { // no more
-			let buttons = document.getElementsByClassName('control');
-			for (let i=0; i < buttons.length; i++){
-				buttons[i].addEventListener('click', (event) => {
-					if (event.currentTarget.classList.contains('play')) {
-						let transaction = db.transaction('recordings');
-						let store = transaction.objectStore('recordings');
-						let request = store.get(Number(event.currentTarget.getAttribute('data-id')));
-							// .onerror = (event) => {
-							// 	console.log('error getting item from store');
-							// }
-						request.onsuccess = (event) => {
-							document.getElementById('player').src = URL.createObjectURL(request.result.blob);
-							document.getElementById('player').play();
-						};
-					} else {
-						let request = db.transaction('recordings', 'readwrite')
-							.objectStore('recordings')
-							.delete(Number(event.currentTarget.getAttribute('data-id')))
-							.onerror = () => console.log('error deleting item from store');
-						// localstorage
-						// window.localStorage.removeItem(event.currentTarget.getAttribute('data-key'));
-						numRecordings--;
-						displayStorage();
-					}
-				});
-			}
-		
+			numRecordings++;
+		});
+		// add button events
+		let buttons = document.getElementsByClassName('control');
+		for (let i=0; i < buttons.length; i++){
+			buttons[i].addEventListener('click', (event2) => {
+				if (event2.currentTarget.classList.contains('play')) {
+					dbAct({type: 'get', id: Number(event2.currentTarget.getAttribute('data-id'))}).then(result => {
+						document.getElementById('player').src = URL.createObjectURL(result.blob);
+						document.getElementById('player').play();
+					});
+				} else {
+					dbAct({type: 'delete', id: Number(event2.currentTarget.getAttribute('data-id'))});
+					numRecordings--;
+					displayStorage();
+				}
+			});
 		}
-	};
-
-	// fille table with items in window.localStorage
-	// if (storedKeys.length) {
-	// 	numRecordings = 0;
-	// 	for (let key in storedKeys){
-	// 		if (storedKeys[key].slice(0,6) == 'tasker') {
-	// 			newRow = '<tr><td><button class="control play" data-key="'+storedKeys[key]+'"><span class="material-icons">play_arrow</span></button></td><td width="100%">'+storedKeys[key]+'</td><td><button class="control edit" data-key="'+storedKeys[key]+'"><span class="material-icons">edit</span></a></td><td><button class="control delete" data-key="'+storedKeys[key]+'"><span class="material-icons">delete_sweep</span></a></td></tr>';
-	// 			insertLocation=recordings.innerHTML.indexOf('</tbody>');
-	// 			recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
-	// 			numRecordings++; //look for others, incrementing somewhere
-	// 		}
-	// 	}
-	// } else {
-	// 	newRow = '<tr><td colspan=4>None</td></tr>';
-	// 	insertLocation=recordings.innerHTML.indexOf('</tbody>');
-	// 	recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
-	// }
-
-	// add events to control buttons
+		// add comment input events
+		let comments = document.getElementsByClassName('comment');
+		for (let j=0; j < comments.length; j++){
+			comments[j].addEventListener('change', (event3) => {
+				dbAct({type: 'update', id: Number(event3.currentTarget.getAttribute('data-id')), comment: event3.currentTarget.value});
+			});
+		}
+	});
 }
 
 // for FETCH calls

@@ -83,7 +83,7 @@ h1 {
 	font-size: 2em;
 }
 .btn {
-	font-size: 105%;
+	font-size: 1.1em;
 	font-weight: bold;
 	padding: 10px 30px 10px 30px;
 	background-color: #E8E695;
@@ -92,7 +92,8 @@ h1 {
 }
 .recordBtn{
 	/* display:inline-block; */
-	font-size: 105%;
+	font-size: 1.1em;
+	font-weight: bold;
 	height: 75px;
 	width: 75px;
 	border-radius: 50%;
@@ -114,7 +115,7 @@ h1 {
 }
 .list {
 	list-style: none;
-	font-size: 105%;
+	font-size: 1.1em;
 	/* font-weight: bold; */
 	padding:0px;
 	

@@ -141,6 +141,7 @@ async function displayStorage() {
 		for (let j=0; j < comments.length; j++){
 			comments[j].addEventListener('change', (event3) => {
 				dbAct({type: 'update', id: Number(event3.currentTarget.getAttribute('data-id')), comment: event3.currentTarget.value});
+				event3.currentTarget.blur();
 			});
 		}
 	});

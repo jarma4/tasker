@@ -16,11 +16,13 @@ html
 					span.material-icons mic_none
 					| Voice Notes
 				.card_content.color-secondary
-					button#recordBtn.recordBtn(value=0) Record
+					button#recordBtn.btnRecord(value=0) Record
 					audio#player
 					table#recordings(width='100%')
 						tr
 							th(colspan=4) Recordings
+					input#syncBtn.btnSmall(type='checkbox', name='sync') 
+					label(for='sync') Sync to server
 			.card
 				.card_title 
 					span.material-icons vpn_lock
@@ -40,7 +42,7 @@ html
 				.card_content.color-primary
 					a(href='images/latest.png') Latest
 					#snapshotDate
-					button.btn(onclick='triggerSnapshot()') Take Snapshot
+					button.btnBig(onclick='triggerSnapshot()') Take Snapshot
 			.card
 				.card_title 
 					span.material-icons account_balance
@@ -55,5 +57,5 @@ html
 						span#currentPrice.left
 						.right Change: 
 						span#change.left
-					button.btn(onclick='getQuote()') Get Quote
+					button.btnBig(onclick='getQuote()') Get Quote
 		script(src='js/bundle.js')

@@ -1,20 +1,23 @@
 const https = require('https'),
    express = require('express'),
-   bodyParser = require('body-parser'),
+   // bodyParser = require('body-parser'),
    compression = require('compression'),
-   fs = require('fs'),
+	mongoose = require('mongoose'),
+	fs = require('fs'),
 	getDeviceScreenshot = require('../modules/screenshot');
 	
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+mongoose.connect('mongodb://tasker:'+process.env.MONGO+'@127.0.0.1/tasker', {useNewUrlParser: true, useUnifiedTopology: true});
 
 const app = express();
 const router = express.Router();
 module.exports = app;
 
-router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json());
+// router.use(bodyParser.urlencoded({ extended: true }));
+// router.use(bodyParser.json());
 
 app.use(compression());
+app.use(express.json());
 app.set('view engine', 'pug');
 app.set('views', './views');
 app.use(express.static('public'));

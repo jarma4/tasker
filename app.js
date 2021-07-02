@@ -10,14 +10,14 @@ console.log('-- Starting Tasker ');
 // const globals = require('./modules/globals');
 const app = require('./modules/http'); // startup express
 const checkVpn = require('./modules/vpn');
-const voice = require('./modules/voice');
-//const checkin = require('./modules/checkin');
 const getDeviceScreenshot = require('./modules/screenshot');
+// const voice = require('./modules/voice');
+//const checkin = require('./modules/checkin');
 
 // Here jobs are scheduled
 const vpnCron = crontab.scheduleJob("*/10 7-23 * * *", checkVpn);
-// const checkinCron = crontab.scheduleJob("15 10 * * *", checkin);
 const devicesCron = crontab.scheduleJob("*/15 1 0,1 * * *", getDeviceScreenshot);
+// const checkinCron = crontab.scheduleJob("15 10 * * *", checkin);
 
 
 

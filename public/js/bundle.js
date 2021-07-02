@@ -58,6 +58,13 @@ async function initAudio (){
 	displayStorage();
 }
 
+// const reader = new FileReader();
+// reader.onload = () => {
+// 	localStorage.setItem('tasker'+numRecordings, reader.result);
+// 	displayStorage(); //when done
+// };
+// reader.readAsDataURL(blob);
+
 function dbAct(actObj){
 	return new Promise((resolve, reject) => {
 		let transaction = db.transaction('recordings', 'readwrite');

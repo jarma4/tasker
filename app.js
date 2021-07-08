@@ -1,10 +1,6 @@
 const crontab = require('node-crontab');
-   // exec = require('child_process').exec;
-   // mongoose = require('mongoose');
-
+	
 require('dotenv').config();
-
-// mongoose.connect('mongodb://baf:'+process.env.MONGO+'@127.0.0.1/baf', {useNewUrlParser: true, useUnifiedTopology: true});
 
 console.log('-- Starting Tasker ');
 // const globals = require('./modules/globals');

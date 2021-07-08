@@ -1,6 +1,5 @@
 const https = require('https'),
    express = require('express'),
-   // bodyParser = require('body-parser'),
    compression = require('compression'),
 	mongoose = require('mongoose'),
 	fs = require('fs'),

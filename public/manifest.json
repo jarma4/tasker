@@ -1,0 +1,12 @@
+{
+	"theme_color": "#E8E695",
+	"background_color": "#534FA6",
+	"display": "standalone",
+	"scope": "/",
+	"start_url": "/",
+	"name": "Tasker",
+	"short_name": "tasker",
+	"icons": {
+		"name": "mainfest.json"
+	}
+}

@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 
 var recordingsSchema = new mongoose.Schema({
+	_id: String,
    date: Date,  //really username
    comment : String,
    blob: Blob

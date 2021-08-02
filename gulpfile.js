@@ -20,8 +20,8 @@ function watch1Task(){
 function startTask() {
    return nodemon({
       script: 'app.js',
-      ext: 'js',
-      ignore: ['frontend/*', 'public/*', 'json/*', 'views/*'],
+      // watch: 'modules/**.*',
+      ignore: ['./public', './json', './views', './results'],
       env: { 'NODE_ENV': 'development' }
    });
 }

@@ -1,19 +1,25 @@
-const https = require('https'),
-   express = require('express'),
-   compression = require('compression'),
-	mongoose = require('mongoose'),
-	fs = require('fs'),
-	getDeviceScreenshot = require('../modules/screenshot');
-	
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-mongoose.connect('mongodb://tasker:'+process.env.MONGO+'@127.0.0.1/tasker', {useNewUrlParser: true, useUnifiedTopology: true});
+const https = require('https');
+const express = require('express');
+const compression = require('compression');
+const	fs = require('fs');
+const getDeviceScreenshot = require('./screenshot');
+const {Recordings} = require('./dbschema');	
+const {GoogleSpreadsheet} = require('google-spreadsheet');
 
-const app = express();
+// http site
+const redirect = express();
+redirect.use(compression());
+redirect.get('*', function(req, res){
+	// res.sendfile('./public/react.html');
+   res.redirect(301, 'https://2dollarbets.com:8082');
+});
+redirect.listen(8083, function(){
+   console.log('http redirecting on port 8083 to https on 8082');
+});
+
+const app = express(); 
 const router = express.Router();
 module.exports = app;
-
-// router.use(bodyParser.urlencoded({ extended: true }));
-// router.use(bodyParser.json());
 
 app.use(compression());
 app.use(express.json());
@@ -25,7 +31,7 @@ app.use('/', router);
 
 const options = {
    cert: fs.readFileSync('./sslcert/fullchain.pem'),
-   key: fs.readFileSync('./sslcert/privkey.pem')
+	key: fs.readFileSync('./sslcert/privkey.pem')
 };
 
 https.createServer(options, app).listen(8082, function(){
@@ -51,14 +57,45 @@ router.post('/api/action', (req,res) => {
    }
 });
 
-router.get('/api/getinfo', (req,res) => {
-   const data = {
-      vpnStatus : JSON.parse(fs.readFileSync('./results/testvpn_status.json')),
-      checkinStatus : JSON.parse(fs.readFileSync('./results/checkin_status.json')),
-		snapshotDate : fs.statSync('./public/images/latest.png').mtime,
-      stockStatus : JSON.parse(fs.readFileSync('./results/stock.json')),
-	 };
-   res.send(data);
+router.get('/api/voiceinfo', (req,res) => {
+	Recordings.find({},{_id: 1},(err, recs)=>{
+		if (err){
+			console.log(err);
+		} else {
+			res.send({
+				vpnStatus : JSON.parse(fs.readFileSync('./results/testvpn_status.json')),
+				// checkinStatus : JSON.parse(fs.readFileSync('./results/checkin_status.json')),
+				snapshotDate : fs.statSync('./public/images/latest.png').mtime,
+				stockStatus : JSON.parse(fs.readFileSync('./results/stock.json')),
+				recordings: recs
+			});
+		}
+	});
+});
+
+router.post('/api/voicesync', (req,res) => {
+	console.log('sync')
+	req.body.recordings.forEach(record => {
+		Recordings.findById(record._id, (err, found) => {
+			if(err) {
+				console.log(`Error finding sync _id: ${err}`);
+			} 
+			if (found) {
+				Recordings.updateOne({_id: record._id}, record, err => {
+					console.log(`${record._id} updated`);
+				});
+			} else {
+				new Recordings(record).save(err => {
+					if (err) {
+						console.log(`Error saving recording: ${err}`);
+					} else {
+						console.log(`Recording saved ${record._id}`);
+					}
+				});
+			}
+		});
+	});
+	res.send({good: true});
 });
 
 async function getQuote(stock){

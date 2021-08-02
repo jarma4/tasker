@@ -74,7 +74,6 @@ router.get('/api/voiceinfo', (req,res) => {
 });
 
 router.post('/api/voicesync', (req,res) => {
-	console.log('sync')
 	req.body.recordings.forEach(record => {
 		Recordings.findById(record._id, (err, found) => {
 			if(err) {
@@ -83,19 +82,22 @@ router.post('/api/voicesync', (req,res) => {
 			if (found) {
 				Recordings.updateOne({_id: record._id}, record, err => {
 					console.log(`${record._id} updated`);
+					res.send({good: true});
 				});
 			} else {
 				new Recordings(record).save(err => {
 					if (err) {
 						console.log(`Error saving recording: ${err}`);
+						res.send({good: false});
 					} else {
 						console.log(`Recording saved ${record._id}`);
+						res.send({good: true});
+
 					}
 				});
 			}
 		});
 	});
-	res.send({good: true});
 });
 
 async function getQuote(stock){

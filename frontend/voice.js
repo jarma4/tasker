@@ -172,6 +172,7 @@ document.getElementById('syncBtn').addEventListener('click', e => {
 					if (!record.sync) {
 						needSync.push(record);
 						dbAct({type: 'update', _id: record._id, toUpdate: {sync: true}});
+						document.querySelector("span.sync[data-_id='"+record._id+"']").textContent = 'sync';
 					}		
 				});
 		

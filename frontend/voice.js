@@ -1,6 +1,6 @@
-let db=null, numRecordings=0;
+// let db=null, numRecordings=0;
 
-async function displayStorage() {
+async function displayRecordings() {
 	const recordings = document.getElementById('recordings');
 	const storedKeys = Object.keys(window.localStorage);
 	let newRow, insertLocation;
@@ -10,11 +10,12 @@ async function displayStorage() {
 	dbAct({type: 'getAll'}).then(results => {
 		// go through records and add table rows
 		results.forEach(record => {
-			let dateArr = record.date.toString().split(' ');
+			// let dateArr = record.date.toString().split(' ');
+			idSet.add(record._id);
 			newRow = '<tr><td><button class="control play" data-_id="'+record._id+'"><span class="material-icons">play_arrow</span></button></td><td width=""><input class="comment" data-_id="'+record._id+'" value="'+record.comment+'"></input></td><td>'+(record.date.getMonth()+1)+'/'+record.date.getDate()+' '+record.date.getHours()+((record.date.getMinutes() < 10)?':0':':')+record.date.getMinutes()+'</td><td><span class="sync material-icons" data-_id="'+record._id+((record.sync)?'">sync':'">sync_disabled')+'</span></td><td><button class="control delete" data-_id="'+record._id+'"><span class="material-icons">delete_sweep</span></button></td></tr>';
 			insertLocation=recordings.innerHTML.indexOf('</tbody>');
 			recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
-			numRecordings++;
+			// numRecordings++;
 		});
 		// add button events
 		let buttons = document.getElementsByClassName('control');
@@ -27,8 +28,8 @@ async function displayStorage() {
 					});
 				} else {
 					dbAct({type: 'delete', _id: event2.currentTarget.getAttribute('data-_id')});
-					numRecordings--;
-					displayStorage();
+					// numRecordings--;
+					displayRecordings();
 				}
 			});
 		}
@@ -59,6 +60,7 @@ function dbAct(actObj){
 				break;
 			case 'delete':
 				request = store.delete(actObj._id);
+				idSet.delete(actObj._id);
 				request.onsuccess = () => {
 					resolve();
 				};
@@ -74,18 +76,27 @@ function dbAct(actObj){
 				};
 				break;
 			case 'getAll':
-				let results = [];
-				request = store.openCursor();
+				// let results = [];
+				request = store.getAll();
+				// request = store.openCursor();
 				request.onsuccess = (event) => {
-					if (event.target.result) {
-						results.push(event.target.result.value);
-						event.target.result.continue();
-					} else {
-						resolve(results);
-					}
+					resolve(request.result);
+
+					// if (event.target.result) {
+					// 	results.push(event.target.result.value);
+					// 	event.target.result.continue();
+					// } else {
+					// 	resolve(results);
+					// }
 				};
 				break;
-			}
+			case 'getAllKeys':
+				request = store.getAllKeys();
+				request.onsuccess = (event) => {
+					resolve(request.result);
+				};
+				break;
+		}
 		request.onerror = (event) => {
 			console.log('DB error'+event.err);
 			reject();
@@ -101,7 +112,7 @@ async function initRecorder (){
 		const player = document.getElementById('player');
 		const recorder = new MediaRecorder(audioObj);
 		let chunks = [];
-
+		// add eventlisteners for buttons
 		recordBtn.addEventListener('click', event => {
 			if (recordBtn.textContent == 'Record') {
 				recorder.start();
@@ -113,6 +124,7 @@ async function initRecorder (){
 				recordBtn.classList.remove('recording');
 			}
 		});
+		// media recorder events
 		recorder.ondataavailable = event => {
 			chunks.push(event.data);
 		};
@@ -126,13 +138,13 @@ async function initRecorder (){
 				.objectStore('recordings')
 				.add({_id: uuidv4(), date: new Date(), comment: 'new note', sync: false, blob_encoded: reader.result})
 				.onerror = () => console.log('error adding item to store');
-				displayStorage(); //when done
+				displayRecordings(); //when done
 			};	
 			reader.readAsDataURL(blob);
 		};
 	});
 	await	initIndexedDb();
-	displayStorage();
+	displayRecordings();
 }
 
 function initIndexedDb(){
@@ -183,15 +195,3 @@ document.getElementById('syncBtn').addEventListener('click', e => {
 	});	
 
 });
-
-
-// navigator.mediaDevices.enumerateDevices()
-// .then(devices => {
-// 	devices.forEach(device=>{
-// 		console.log(device.kind + ": " + device.label +
-// 		" _id = " + device.deviceId);
-// 	});
-// })
-// .catch(err=>{
-// 		console.log(err.name, err.message);
-// });

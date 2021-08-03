@@ -1,3 +1,5 @@
+const idSet = new Set();
+
 window.onload = () => {
 	initRecorder();
 	doorBell();
@@ -17,23 +19,19 @@ const getOptions = {
 };
 
 function doorBell() {
-	let message, target;
-
 	fetch('/api/voiceinfo', getOptions)
 	.then(res => res.json())
 	.then(retData => {
 		// VOICE
-		// dbAct({type: 'getAll'}).then(results => {
-		// 	// go through records and add table rows
-		// 	results.forEach(record => {
-		// 		for(let j=0; j < retData.recordings.length; j++){
-		// 			if (record._id == retData.recordings[j]._id) {
-		// 				dbAct({type: 'update', _id: record._id, toUpdate:{sync: true}});
-		// 			}
-		// 		}
-		// 	});
-		// });
+		for (let i=0; i < retData.recordings.length; i++) {
+			if (!idSet.has(retData.recordings[i]._id)) {
+				console.log(`${retData.recordings[i]._id} not in DB`);
+				document.querySelector("#moreOnServer").textContent = 'sync_problem';
+				break;
+			}
+		}
 		// VPN
+		let message, target;
 		target = document.getElementById("vpnStatus");
 		if (retData.vpnStatus.date == 'none') {
 			message = 'no data';

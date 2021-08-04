@@ -15,7 +15,7 @@ html
 				.card_title 
 					span.material-icons mic_none
 					| Voice Notes
-				.card_content.color-secondary
+				.card_content.color-primary
 					button#recordBtn.btnRecord(value=0) Record
 					audio#player
 					table#recordings(width='100%')
@@ -58,4 +58,10 @@ html
 						.right Change: 
 						span#change.left
 					button.btnBig(onclick='getQuote()') Get Quote
+		#deleteModal.modal 
+			.modal-content
+				p Please confirm you want to delete?
+				.btn-group
+					button#deleteCancel.btnSmall Cancel
+					button#deleteConfirm.btnSmall Confirm
 		script(src='js/bundle.js')

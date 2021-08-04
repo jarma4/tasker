@@ -23,13 +23,16 @@ async function displayRecordings() {
 			buttons[i].addEventListener('click', (event2) => {
 				if (event2.currentTarget.classList.contains('play')) {
 					dbAct({type: 'getOne', _id: event2.currentTarget.getAttribute('data-_id')}).then(result => {
-						document.getElementById('player').src = result.blob_encoded;
-						document.getElementById('player').play();
+						const player = document.getElementById('player');
+						player.src = result.blob_encoded;
+						player.play();
+						event2.target.classList.add('blinking');
+						player.addEventListener('ended', err=>{
+							event2.target.classList.remove('blinking');
+						});
 					});
 				} else {
-					dbAct({type: 'delete', _id: event2.currentTarget.getAttribute('data-_id')});
-					// numRecordings--;
-					displayRecordings();
+					deleteModal(event2.currentTarget);
 				}
 			});
 		}
@@ -117,11 +120,11 @@ async function initRecorder (){
 			if (recordBtn.textContent == 'Record') {
 				recorder.start();
 				recordBtn.textContent = 'Stop';
-				recordBtn.classList.add('recording');
+				recordBtn.classList.add('blinking');
 			} else {
 				recorder.stop();
 				recordBtn.textContent = 'Record';
-				recordBtn.classList.remove('recording');
+				recordBtn.classList.remove('blinking');
 			}
 		});
 		// media recorder events
@@ -162,6 +165,21 @@ function initIndexedDb(){
 		};
 	});
 }
+
+function deleteModal(target){
+	document.getElementById('deleteConfirm').setAttribute('data-_id', target.getAttribute('data-_id'));
+	document.getElementById('deleteModal').style.display = 'block';
+}
+
+document.getElementById('deleteCancel').addEventListener('click', event => {
+	document.getElementById('deleteModal').style.display = 'none';
+});
+
+document.getElementById('deleteConfirm').addEventListener('click', event => {
+	dbAct({type: 'delete', _id: document.getElementById('deleteConfirm').getAttribute('data-_id')});
+	document.getElementById('deleteModal').style.display = 'none';
+	displayRecordings();
+});
 
 document.getElementById('syncBtn').addEventListener('click', e => {
 	let needSync = [];

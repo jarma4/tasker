@@ -58,6 +58,9 @@ body {
 .right {
    text-align: right;
 }
+.float_right {
+   float: right;
+}
 .left {
    text-align: left;
 }
@@ -85,7 +88,7 @@ h1 {
 .btnBig {
 	font-size: 1.1em;
 	font-weight: bold;
-	padding: 10px 30px 10px 30px;
+	padding: .75em 1.1em;
 	background-color: #E8E695;
 	border-radius: 5%;
 	border: none;
@@ -93,7 +96,7 @@ h1 {
 .btnSmall {
 	/* font-size: 1.1em; */
 	font-weight: bold;
-	/* padding: 10px 20px 10px 20px; */
+	padding: .75em 1.1em;
 	background-color: #E8E695;
 	border-radius: 5%;
 	border: none;
@@ -109,7 +112,7 @@ h1 {
 	color: white;
 	border: none;
 }
-.recording{
+.blinking{
 	animation: blinker 1s linear infinite;
 }
 @keyframes blinker {
@@ -120,6 +123,30 @@ h1 {
 .control {
 	border-radius: 40%;
 	border-style: none;
+}
+.modal{
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.5);
+	overflow: auto;
+}
+.modal-content{
+	width: 70%;
+	margin: 20% auto;
+	padding: 20px;
+	background-color: white;
+	border-radius: 5%;
+}
+.btn-group{
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-column-gap: 20px;
+	justify-content: center;
 }
 .list {
 	list-style: none;

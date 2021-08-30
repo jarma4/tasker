@@ -1,7 +1,7 @@
 const idSet = new Set();
 
 window.onload = () => {
-	initRecorder();
+	initVoice();
 	doorBell();
 };
 

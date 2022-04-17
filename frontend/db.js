@@ -40,12 +40,6 @@ function dbAct(actObj){
 				request.onsuccess = () => {
 					resolve();
 				};
-
-				// request = store.delete(actObj._id);
-				// request.onsuccess = () => {
-				// 	resolve();
-				// };
-				// idSet.delete(actObj._id);
 				break;
 			case 'update':
 				request = store.get(actObj._id);

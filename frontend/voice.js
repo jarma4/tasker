@@ -130,6 +130,12 @@ document.getElementById('deleteCancel').addEventListener('click', event => {
 });
 
 document.getElementById('deleteConfirm').addEventListener('click', event => {
+	dbAct({objectStore: 'recordings', type: 'getOne', _id: document.getElementById('deleteConfirm').getAttribute('data-_id')}).then(result => {
+		if (result.sync) {
+			// add to deleted objectstore
+			console.log('in synced');
+		}
+	});
 	dbAct({objectStore: 'recordings', type: 'delete', _id: document.getElementById('deleteConfirm').getAttribute('data-_id')});
 	document.getElementById('deleteModal').style.display = 'none';
 	displayRecordings();

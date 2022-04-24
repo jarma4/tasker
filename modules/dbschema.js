@@ -6,7 +6,9 @@ var recordingsSchema = new mongoose.Schema({
    date: Date,  
    comment : String,
 	// sync: Boolean,
-   blob_encoded: String
+   blob_encoded: String,
+	transcript_id: String,
+	transcription: String
 });
 
 module.exports = {

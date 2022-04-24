@@ -1,14 +1,4 @@
 function dbAct(actObj){
-	/*
-	actObj = {
-		objectStore: recordings/deleted
-		type: getOne/getAll/update/delete
-		_id: ''
-		toUpdate: [
-			{}, {}
-		]
-	}
-	*/
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(actObj.objectStore, 'readwrite');
 		const store = transaction.objectStore(actObj.objectStore);
@@ -18,24 +8,21 @@ function dbAct(actObj){
 				request = store.get(actObj._id);
 				request.onsuccess = () => {
 					resolve(request.result);
-				}
+				};
 				break;
 			case 'add':
 				request = store.add(actObj.toUpdate);
 				request.onsuccess = () => {
 					resolve();
-				}
+				};
 				break;
 			case 'getOne':
 				request = store.get(actObj._id);
 				request.onsuccess = () => {
 					resolve(request.result);
-				}
+				};
 				break;
 			case 'delete':
-				// const transaction2 = db.transaction('deleted', 'readwrite');
-				// const store2 = transaction2.objectStore('deleted');
-				// let request2;
 				request = store.delete(actObj._id);
 				request.onsuccess = () => {
 					resolve();
@@ -52,18 +39,9 @@ function dbAct(actObj){
 				};
 				break;
 			case 'getAll':
-				// let results = [];
 				request = store.getAll();
-				// request = store.openCursor();
 				request.onsuccess = (event) => {
 					resolve(request.result);
-
-					// if (event.target.result) {
-					// 	results.push(event.target.result.value);
-					// 	event.target.result.continue();
-					// } else {
-					// 	resolve(results);
-					// }
 				};
 				break;
 			case 'getAllKeys':

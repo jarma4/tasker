@@ -9,8 +9,8 @@ async function displayRecordings() {
 		// go through records and add table rows
 		results.forEach(record => {
 			// let dateArr = record.date.toString().split(' ');
-			idSet.add(record._id);
-			newRow = '<tr><td><button class="control play" data-_id="'+record._id+'"><span class="material-icons">play_arrow</span></button></td><td width=""><input class="comment" data-_id="'+record._id+'" value="'+record.comment+'"></input></td><td>'+(record.date.getMonth()+1)+'/'+record.date.getDate()+' '+record.date.getHours()+((record.date.getMinutes() < 10)?':0':':')+record.date.getMinutes()+'</td><td><span class="sync material-icons" data-_id="'+record._id+((record.sync)?'">sync':'">sync_disabled')+'</span></td><td><button class="control delete" data-_id="'+record._id+'"><span class="material-icons">delete_sweep</span></button></td></tr>';
+			idSet.add(record._id);  // global list to check at doorbell
+			newRow = '<tr><td><button class="control play" data-_id="'+record._id+'"><span class="material-icons">play_arrow</span></button></td><td class="date">'+record.transcription+'</td><td>'+(record.date.getMonth()+1)+'/'+record.date.getDate()+' '+record.date.getHours()+((record.date.getMinutes() < 10)?':0':':')+record.date.getMinutes()+'</td><td><span class="sync material-icons" data-_id="'+record._id+((record.sync)?'">sync':'">sync_disabled')+'</span></td><td><button class="control delete" data-_id="'+record._id+'"><span class="material-icons">delete_sweep</span></button></td></tr>';
 			insertLocation=recordings.innerHTML.indexOf('</tbody>');
 			recordings.innerHTML = recordings.innerHTML.slice(0,insertLocation)+newRow+recordings.innerHTML.slice(insertLocation);
 			// numRecordings++;
@@ -32,16 +32,6 @@ async function displayRecordings() {
 				} else {
 					deleteModal(event2.currentTarget);
 				}
-			});
-		}
-		// add comment input events
-		let comments = document.getElementsByClassName('comment');
-		for (let j=0; j < comments.length; j++){
-			comments[j].addEventListener('change', (event3) => {
-				const id = event3.currentTarget.getAttribute('data-_id');
-				dbAct({objectStore: 'recordings', type: 'update', _id: id, toUpdate: {comment: event3.currentTarget.value, sync: false}});
-				document.querySelector("span.sync[data-_id='"+id+"']").textContent = 'sync_disabled';
-				event3.currentTarget.blur();
 			});
 		}
 	});
@@ -76,15 +66,49 @@ async function initVoice (){
 			chunks = [];
 			// below does the uuencode
 			const reader = new FileReader();
-			reader.onload = () => {
-				dbAct({objectStore: 'recordings', type: 'add', _id: '', toUpdate: {_id: uuidv4(), date: new Date(), comment: 'new note', sync: false, blob_encoded: reader.result}});
+			reader.onload = () => {  // when encoded, save in db
+				const id = uuidv4();
+				dbAct({objectStore: 'recordings', type: 'add', toUpdate: {_id: id, date: new Date(), transcription: 'pending', sync: false, blob_encoded: reader.result}});
 				displayRecordings(); //when done
+				getTranscript(id, reader.result)
+				.then(retData => {
+					dbAct({objectStore: 'recordings', type: 'update', _id: id, toUpdate: {transcription: retData}});
+					displayRecordings(); //when done
+				})
+				.catch(err => console.error(err));
 			};	
-			reader.readAsDataURL(blob);
+			reader.readAsDataURL(blob); //encode
 		};
 	});
 	await	initIndexedDb();
 	displayRecordings();
+}
+
+function getTranscript(id, blob_encoded){
+	return new Promise((resolve, reject)=>{
+		postOptions.body = JSON.stringify({
+			"blob_encoded": blob_encoded
+		});
+		fetch('/api/starttranscript', postOptions)
+		.then(res => res.json())
+		.then(retData => {
+			postOptions.body = JSON.stringify({
+				'id': retData.id
+			});
+			setTimeout(() => {
+				fetch('/api/gettranscript', postOptions)
+				.then(res => res.json())
+				.then(retData2 => {
+					resolve(retData2.text);
+				})
+				.catch(err2 => {
+					reject();
+					console.error(err2);
+				});
+			}, 15000);
+		})
+		.catch(err => reject(err));	
+	});
 }
 
 function deleteModal(target){
@@ -92,9 +116,20 @@ function deleteModal(target){
 	document.getElementById('deleteModal').style.display = 'block';
 }
 
+function syncRecordings(list){
+	return new Promise((resolve, reject)=>{
+		postOptions.body = JSON.stringify({
+			"recordings": list
+		});
+		fetch('/api/voicesync', postOptions)
+		.then(res => res.json())
+		.then(retData => resolve (retData))
+		.catch(err => reject(err));	
+	});
+}
+
 document.getElementById('syncBtn').addEventListener('click', e => {
 	let needSync = [];
-
 	dbAct({objectStore: 'recordings', type: 'getAll'}).then(results => {
 		// go through records and send items not synced
 		results.forEach(record => {
@@ -103,23 +138,14 @@ document.getElementById('syncBtn').addEventListener('click', e => {
 			}		
 		});
 		if (needSync.length) {
-			postOptions.body = JSON.stringify({
-				"recordings": needSync
-			});
-			fetch('/api/voicesync', postOptions)
-			.then(res => res.json())
-			.then(retData => {
-				needSync.forEach(record => {
-					if (!record.sync) {
-						needSync.push(record);
-						dbAct({objectStore: 'recordings', type: 'update', _id: record._id, toUpdate: {sync: true}});
-						document.querySelector("span.sync[data-_id='"+record._id+"']").textContent = 'sync';
-					}		
+			syncRecordings(needSync)
+			.then (retData => {
+				needSync.forEach(record => { // assume no promblem syncing on server; review later
+					dbAct({objectStore: 'recordings', type: 'update', _id: record._id, toUpdate: {sync: true}});
+					document.querySelector("span.sync[data-_id='"+record._id+"']").textContent = 'sync';
 				});
-		
-				console.log('Success syncing');
 			})
-			.catch(retData => console.log('Error syncing'));	
+			.catch(err => console.log(err));
 		}
 	});	
 

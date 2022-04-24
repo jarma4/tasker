@@ -24,10 +24,12 @@ function doorBell() {
 	.then(retData => {
 		// VOICE
 		for (let i=0; i < retData.recordings.length; i++) {
-			if (!idSet.has(retData.recordings[i]._id)) {
+			if (idSet.has(retData.recordings[i]._id)) {
+				dbAct({objectStore: 'recordings', type: 'update', _id: retData.recordings[i]._id, toUpdate: {transcription: retData.recordings[i].transcription}});
+			} else {
 				console.log(`${retData.recordings[i]._id} not in DB`);
-				document.querySelector("#moreOnServer").textContent = 'sync_problem';
-				break;
+				document.querySelector("#moreOnServer").textContent = 'sync_problem'; // change icon
+				// break;
 			}
 		}
 		// VPN

@@ -8,18 +8,19 @@ Uses:
 - IndexedDB
 - MediaRecorder
 - Voice to Text API from AssemblyAI
-- 
+ 
 ### VPN Status
-Shows the status of VPN connection by checking JSON file created by cron job running on host every 5 minutes.
+Shows the status of VPN connection by checking JSON file created by cron job running on host every 10 minutes.  If VPN shows down, user is notified via a text message.
 
 Uses:
 - Telynx SMS API
+
 ### Router Snapshot
 Takes screen shot of who's connected to wifi router at prescribed time.
 
 Uses:
 - Puppeteer
-- 
+ 
 ### Stock Watch
 Gets stock quotes from Google Finance
 

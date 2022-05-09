@@ -16,7 +16,7 @@ Uses:
 - Telynx SMS API
 
 ### Router Snapshot
-Takes screen shot of who's connected to wifi router at prescribed time.
+Takes screen shot of what's connected to wifi router at prescribed time.
 
 Uses:
 - Puppeteer

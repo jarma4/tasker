@@ -1,5 +1,10 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://tasker:'+process.env.MONGO+'@127.0.0.1/tasker', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.set('strictQuery', true);
+mongoose.connect(process.env.BAF_MONGO_URI)
+.then(()=>{})
+.catch(err=>{
+	console.log(err);
+});
 
 var recordingsSchema = new mongoose.Schema({
 	_id: String,

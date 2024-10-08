@@ -8,15 +8,15 @@ const {GoogleSpreadsheet} = require('google-spreadsheet');
 const axios = require("axios");
 
 // http site
-const redirect = express();
-redirect.use(compression());
-redirect.get('*', function(req, res){
-	// res.sendfile('./public/react.html');
-   res.redirect(301, 'https://2dollarbets.com:8082');
-});
-redirect.listen(8083, function(){
-   console.log('http redirecting on port 8083 to https on 8082');
-});
+// const redirect = express();
+// redirect.use(compression());
+// redirect.get('*', function(req, res){
+// 	// res.sendfile('./public/react.html');
+//    res.redirect(301, 'https://2dollarbets.com:8082');
+// });
+// redirect.listen(8083, '192.168.1.200', function(){
+//    console.log('http redirecting on port 8083 to https on 8082');
+// });
 
 const app = express(); 
 const router = express.Router();
@@ -37,7 +37,7 @@ const options = {
 	key: fs.readFileSync('./sslcert/privkey.pem')
 };
 
-https.createServer(options, app).listen(8082, function(){
+https.createServer(options, app).listen(8082, '192.168.1.200', function(){
    console.log('https on port 8082');
 });
 
@@ -68,20 +68,19 @@ router.post('/api/action', (req,res) => {
    }
 });
 
-router.get('/api/voiceinfo', (req,res) => {
-	Recordings.find({},{_id: 1, transcription: 1},(err, recs)=>{
-		if (err){
-			console.log(err);
-		} else {
-			res.send({
-				vpnStatus : JSON.parse(fs.readFileSync('./results/testvpn_status.json')),
-				// checkinStatus : JSON.parse(fs.readFileSync('./results/checkin_status.json')),
-				snapshotDate : fs.statSync('./public/images/latest.png').mtime,
-				stockStatus : JSON.parse(fs.readFileSync('./results/stock.json')),
-				recordings: recs
-			});
-		}
-	});
+router.get('/api/voiceinfo', async (req,res) => {
+	try{
+		const recs = await Recordings.find({_id: 1, transcription: 1});
+		res.send({
+			vpnStatus : JSON.parse(fs.readFileSync('./results/testvpn_status.json')),
+			// checkinStatus : JSON.parse(fs.readFileSync('./results/checkin_status.json')),
+			snapshotDate : fs.statSync('./public/images/latest.png').mtime,
+			stockStatus : JSON.parse(fs.readFileSync('./results/stock.json')),
+			recordings: recs
+		});
+	} catch {
+		console.log(err);
+	}
 });
 
 let transcript = {};

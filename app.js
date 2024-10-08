@@ -1,6 +1,6 @@
 const crontab = require('node-crontab');
 	
-require('dotenv').config();
+process.loadEnvFile();
 
 console.log('-- Starting Tasker ');
 // const globals = require('./modules/globals');
@@ -11,8 +11,8 @@ const getDeviceScreenshot = require('./modules/screenshot');
 //const checkin = require('./modules/checkin');
 
 // Here jobs are scheduled
-const vpnCron = crontab.scheduleJob("*/10 7-23 * * *", checkVpn);
-const devicesCron = crontab.scheduleJob("*/15 1 0,1 * * *", getDeviceScreenshot);
+// const vpnCron = crontab.scheduleJob("*/6 7-23 * * *", checkVpn);
+// const devicesCron = crontab.scheduleJob("*/15 1 0,1 * * *", getDeviceScreenshot);
 // const checkinCron = crontab.scheduleJob("15 10 * * *", checkin);
 
 

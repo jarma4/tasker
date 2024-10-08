@@ -1,7 +1,8 @@
 const globals = require('./globals');
 
 module.exports = async function () {
-   // latte crontab script checks status and logs in file every 10 minutes; hopefully this take a little longer to check if on 10 minutes
+   // VM crontab script checks status and logs in file every 5 minutes; hopefully this take a little longer to check if on 10 minutes
+	// console.log('checking vpn');
    globals.fs.readFile('results/testvpn_status.json', (err, data) => {
 		if (data) {
 			const vpnStatus = JSON.parse(data);

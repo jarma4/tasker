@@ -12,7 +12,7 @@ html
 		h1 Tasker
 		.wrapper
 			.card
-				.card_title 
+				.card_title.color-secondary
 					span.material-icons mic_none
 					| Voice Notes
 				.card_content.color-primary
@@ -24,19 +24,19 @@ html
 					span#moreOnServer.material-icons
 					button#syncBtn.btnBig Sync to server
 			.card
-				.card_title 
+				.card_title.color-secondary
 					span.material-icons vpn_lock
 					| VPN Status
 				.card_content.color-primary
 					#vpnStatus.status
 					#vpnStatusDate
 			.card.nodisplay
-				.card_title Banggood Points
+				.card_title.color-secondary Banggood Points
 				.card_content.color-primary
 					#checkinPoints.status
 					#checkinPointsDate
-			.card
-				.card_title 
+			.card.nodisplay
+				.card_title.color-secondary
 					span.material-icons network_check
 					| Network Snapshot
 				.card_content.color-primary
@@ -44,7 +44,7 @@ html
 					#snapshotDate
 					button.btnBig(onclick='triggerSnapshot()') Take Snapshot
 			.card
-				.card_title 
+				.card_title.color-secondary
 					span.material-icons account_balance
 					| Stock Watch
 				.card_content.color-primary
